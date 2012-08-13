@@ -162,16 +162,6 @@ static CPUserSessionHandler *sharedHandler;
                 // for now if the email comes back null this person isn't logged in so we're going to send them to do that.
                 if (![webSyncUser.email isKindOfClass:[NSNull class]]) {
                     [CPUserDefaultsHandler setCurrentUser:webSyncUser];
-                    
-                    if (!currentUser.isDaysOfTrialAccessWithoutInviteCodeOK) {
-                        [self showSignupModalFromViewController:[CPAppDelegate tabBarController] animated:NO];
-                        
-                        [[[UIAlertView alloc] initWithTitle:[NSString stringWithFormat:@"Your %d days trial has ended.", kDaysOfTrialAccessWithoutInviteCode]
-                                                    message:@"Please login and enter invite code."
-                                                   delegate:nil
-                                          cancelButtonTitle:@"OK"
-                                          otherButtonTitles:nil] show];
-                    }
                 }
             }
         }];
