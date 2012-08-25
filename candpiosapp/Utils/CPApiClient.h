@@ -15,7 +15,11 @@
                statusText:(NSString *)statusText
                 isVirtual:(BOOL)isVirtual
               isAutomatic:(BOOL)isAutomatic
-          completionBlock:(void (^)(AFHTTPRequestOperation *, NSDictionary *, NSError *))completion;
+          completion:(void (^)(AFHTTPRequestOperation *, NSDictionary *, NSError *))completion;
+
++ (void)getMarkersForSouthwestCoordinate:(CLLocationCoordinate2D)southwestCoord
+                     NortheastCoordinate:(CLLocationCoordinate2D)northeastCoord
+                         completion:(void (^)(AFHTTPRequestOperation *, NSDictionary *, NSError *))completion;
 
 
 @end

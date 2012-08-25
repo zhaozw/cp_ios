@@ -10,6 +10,8 @@
 
 @implementation CPApiClient
 
+#pragma mark - Initialization
+
 static AFHTTPClient *sharedClient;
 
 + (void)initialize
@@ -31,17 +33,41 @@ static AFHTTPClient *sharedClient;
     return self;
 }
 
+#pragma mark - Common request
+
++ (void)makeAPIRequestWithAction:(NSString *)action
+                      parameters:(NSMutableDictionary *)parameters
+                      completion:(void (^)(AFHTTPRequestOperation *, NSDictionary *, NSError *))completion
+{
+    [parameters setObject:action forKey:@"action"];
+    
+    [sharedClient postPath:@"api.php" parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        completion(operation, responseObject, nil);
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        completion(operation, nil, error);
+    }];
+}
+
+#pragma mark - Helpers
+
++ (NSString *)stringParameterForCoordinateAngle:(double)coordinateAngle
+{
+    return [NSString stringWithFormat:@"%.7lf", coordinateAngle];
+}
+
+#pragma mark - Check in
+
 + (void)checkInToVenue:(CPVenue *)venue
                 hoursHere:(int)hoursHere
                statusText:(NSString *)statusText
                 isVirtual:(BOOL)isVirtual
               isAutomatic:(BOOL)isAutomatic
-          completionBlock:(void (^)(AFHTTPRequestOperation *, NSDictionary *, NSError *))completion
+          completion:(void (^)(AFHTTPRequestOperation *, NSDictionary *, NSError *))completion
 {
-    NSMutableDictionary *parameters = [[NSMutableDictionary alloc] init];
-    [parameters setValue:[NSString stringWithFormat:@"%.7lf", venue.coordinate.latitude]
+    NSMutableDictionary *parameters = [NSMutableDictionary dictionary];
+    [parameters setValue:[self stringParameterForCoordinateAngle:venue.coordinate.latitude]
                   forKey:@"lat"];
-    [parameters setValue:[NSString stringWithFormat:@"%.7lf", venue.coordinate.longitude]
+    [parameters setValue:[self stringParameterForCoordinateAngle:venue.coordinate.longitude]
                   forKey:@"lng"];
     [parameters setValue:venue.name forKey:@"venue_name"];
     [parameters setValue:[NSString stringWithFormat:@"%d", hoursHere] forKey:@"hours_here"];
@@ -62,15 +88,27 @@ static AFHTTPClient *sharedClient;
         
     }
     
-    [parameters setValue:@"checkin" forKey:@"action"];
-    
-    [sharedClient postPath:@"api.php" parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
-        completion(operation, responseObject, nil);
-    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        completion(operation, nil, error);
-    }];
+    [self makeAPIRequestWithAction:@"checkin" parameters:parameters completion:completion];
     
     [FlurryAnalytics logEvent:@"checkedIn"];
+}
+
+#pragma mark - Map Marker Data
+
++ (void)getMarkersForSouthwestCoordinate:(CLLocationCoordinate2D)southwestCoord
+                     NortheastCoordinate:(CLLocationCoordinate2D)northeastCoord
+                         completion:(void (^)(AFHTTPRequestOperation *, NSDictionary *, NSError *))completion
+{
+    NSMutableDictionary *parameters = [NSMutableDictionary dictionary];
+    
+    // add the Southwest and Northeast coordinates to the params dictionary
+    [parameters setValue:[self stringParameterForCoordinateAngle:southwestCoord.latitude] forKey:@"sw_lat"];
+    [parameters setValue:[self stringParameterForCoordinateAngle:southwestCoord.longitude] forKey:@"sw_lng"];
+    [parameters setValue:[self stringParameterForCoordinateAngle:northeastCoord.latitude] forKey:@"ne_lat"];
+    [parameters setValue:[self stringParameterForCoordinateAngle:northeastCoord.longitude] forKey:@"ne_lng"];
+    
+    // fire off the request using the common request method
+    [self makeAPIRequestWithAction:@"getMarkers" parameters:parameters completion:completion];
 }
 
 @end
