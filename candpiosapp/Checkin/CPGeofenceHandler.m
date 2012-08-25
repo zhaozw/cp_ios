@@ -76,7 +76,7 @@ static CPGeofenceHandler *sharedHandler;
     NSString *statusText = @"";
     
     // use CPapi to checkin
-    [CPApiClient checkInToVenue:venue hoursHere:checkInDuration statusText:statusText isVirtual:NO isAutomatic:YES completionBlock:^(NSDictionary *json, NSError *error){
+    [CPApiClient checkInToVenue:venue hoursHere:checkInDuration statusText:statusText isVirtual:NO isAutomatic:YES completionBlock:^(AFHTTPRequestOperation *operation, NSDictionary *json, NSError *error){
         
         if (!error) {
             if (![[json objectForKey:@"error"] boolValue]) {

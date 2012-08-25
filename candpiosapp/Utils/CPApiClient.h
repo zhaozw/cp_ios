@@ -15,6 +15,7 @@
                statusText:(NSString *)statusText
                 isVirtual:(BOOL)isVirtual
               isAutomatic:(BOOL)isAutomatic
-          completionBlock:(void (^)(NSDictionary *, NSError *))completion;
+          completionBlock:(void (^)(AFHTTPRequestOperation *, NSDictionary *, NSError *))completion;
+
 
 @end

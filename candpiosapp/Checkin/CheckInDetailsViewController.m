@@ -178,7 +178,7 @@
                         statusText:statusText
                          isVirtual:self.checkInIsVirtual
                        isAutomatic:NO
-                   completionBlock:^(NSDictionary *json, NSError *error){
+                   completionBlock:^(AFHTTPRequestOperation *operation, NSDictionary *json, NSError *error){
         // hide the SVProgressHUD
         if (!error) {
             if (![[json objectForKey:@"error"] boolValue]) {

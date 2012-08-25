@@ -36,7 +36,7 @@ static AFHTTPClient *sharedClient;
                statusText:(NSString *)statusText
                 isVirtual:(BOOL)isVirtual
               isAutomatic:(BOOL)isAutomatic
-          completionBlock:(void (^)(NSDictionary *, NSError *))completion
+          completionBlock:(void (^)(AFHTTPRequestOperation *, NSDictionary *, NSError *))completion
 {
     NSMutableDictionary *parameters = [[NSMutableDictionary alloc] init];
     [parameters setValue:[NSString stringWithFormat:@"%.7lf", venue.coordinate.latitude]
@@ -65,14 +65,12 @@ static AFHTTPClient *sharedClient;
     [parameters setValue:@"checkin" forKey:@"action"];
     
     [sharedClient postPath:@"api.php" parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
-        completion(responseObject, nil);
+        completion(operation, responseObject, nil);
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        completion(nil, error);
+        completion(operation, nil, error);
     }];
     
     [FlurryAnalytics logEvent:@"checkedIn"];
 }
-
-
 
 @end
